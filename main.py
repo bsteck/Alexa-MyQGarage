@@ -12,17 +12,21 @@ DEVICE_LIST_ENDPOINT = "api/UserDeviceDetails"
 DEVICE_SET_ENDPOINT = "Device/setDeviceAttribute"
 DEVICE_STATUS_ENDPOINT = "Device/getDeviceAttribute"
 
-USERNAME = "<MYQ_LOGIN_USERNAME>"
-PASSWORD = "<MYQ_LOGIN_PASSWORD>"
+USERNAME = "your@email.com"
+PASSWORD = "your_password"
+
+# Specify a door number. If you only have one garage door, leave it set to 1. Options are 1, 2, 3, 4.
+door_number = 1
 
 myq_userid                  = ""
 myq_security_token          = ""
 myq_cached_login_response   = ""
 myq_device_id               = ""
 
+
 def lambda_handler(event, context):
 
-    if event['session']['application']['applicationId'] != "amzn1.ask.skill.<your-alexa-skills-id>":
+    if event['session']['application']['applicationId'] != "ADD YOU AMAZON SKILL KIT ID HERE":
         print "Invalid Application ID"
         raise
     else:
@@ -104,7 +108,7 @@ def change_door_state(command):
 
     body = {
         "AttributeName":"desireddoorstate",
-        "DeviceId":myq_device_id,
+        "DeviceId": myq_device_id,
         "ApplicationId":APP_ID,
         "AttributeValue":open_close_state,
         "SecurityToken":myq_security_token
@@ -116,14 +120,15 @@ def change_door_state(command):
 
 def get_device_id():
     global myq_device_id
-
+    
+    all_doors = []
     devices = requests.get(device_list_uri(myq_security_token)).json()
+
     for dev in devices["Devices"]:
         if dev["MyQDeviceTypeName"] in ["VGDO", "GarageDoorOpener", "Garage Door Opener WGDO"]:
-            myq_device_id = str(dev["DeviceId"])
-            # We only want the first one
-            break
-
+            all_doors.append(str(dev["DeviceId"]))
+    myq_device_id = all_doors[door_number - 1]
+            
 def check_door_state_uri(command):
     uri = "https://" + HOST_URI + "/" + DEVICE_STATUS_ENDPOINT
     uri += "?appId=" + APP_ID

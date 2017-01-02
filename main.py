@@ -12,21 +12,21 @@ DEVICE_LIST_ENDPOINT = "api/UserDeviceDetails"
 DEVICE_SET_ENDPOINT = "Device/setDeviceAttribute"
 DEVICE_STATUS_ENDPOINT = "Device/getDeviceAttribute"
 
+# DO NOT CHANGE ANYTHING ABOVE THIS LINE
 USERNAME = "your@email.com"
 PASSWORD = "your_password"
-
-# Specify a door number. If you only have one garage door, leave it set to 1. Options are 1, 2, 3, 4.
+ALEXA_ASK_ID = "amzn1.ask.skill.xxxx-xxxx-xxxx-xxxx-xxxx"
 door_number = 1
+# DO NOT CHANGE ANYTHING BELOW THIS LINE
 
 myq_userid                  = ""
 myq_security_token          = ""
 myq_cached_login_response   = ""
 myq_device_id               = ""
 
-
 def lambda_handler(event, context):
 
-    if event['session']['application']['applicationId'] != "ADD YOU AMAZON SKILL KIT ID HERE":
+    if event['session']['application']['applicationId'] != ALEXA_ASK_ID:
         print "Invalid Application ID"
         raise
     else:

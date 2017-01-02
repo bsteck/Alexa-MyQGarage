@@ -16,7 +16,7 @@ DEVICE_STATUS_ENDPOINT = "Device/getDeviceAttribute"
 USERNAME = "your@email.com"
 PASSWORD = "your_password"
 ALEXA_ASK_ID = "amzn1.ask.skill.xxxx-xxxx-xxxx-xxxx-xxxx"
-door_number = 1
+DOOR_NUMBER = 1
 # DO NOT CHANGE ANYTHING BELOW THIS LINE
 
 myq_userid                  = ""
@@ -127,7 +127,7 @@ def get_device_id():
     for dev in devices["Devices"]:
         if dev["MyQDeviceTypeName"] in ["VGDO", "GarageDoorOpener", "Garage Door Opener WGDO"]:
             all_doors.append(str(dev["DeviceId"]))
-    myq_device_id = all_doors[door_number - 1]
+    myq_device_id = all_doors[DOOR_NUMBER - 1]
             
 def check_door_state_uri(command):
     uri = "https://" + HOST_URI + "/" + DEVICE_STATUS_ENDPOINT

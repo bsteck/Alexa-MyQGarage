@@ -7,17 +7,14 @@ APP_ID = "Vj8pQggXLhLy0WHahglCD4N1nAkkXQtGYpq2HrHD7H1nvmbT55KqtN6RSF4ILB%2Fi"
 LOCALE = "en"
 
 HOST_URI = "myqexternal.myqdevice.com"
-LOGIN_ENDPOINT = "Membership/ValidateUserWithCulture"
-DEVICE_LIST_ENDPOINT = "api/UserDeviceDetails"
+LOGIN_ENDPOINT = "api/user/validatewithculture"
+DEVICE_LIST_ENDPOINT = "api/userdevicedetails"
 DEVICE_SET_ENDPOINT = "Device/setDeviceAttribute"
 DEVICE_STATUS_ENDPOINT = "Device/getDeviceAttribute"
 
-# DO NOT CHANGE ANYTHING ABOVE THIS LINE
-USERNAME = "your@email.com"
-PASSWORD = "your_password"
-ALEXA_ASK_ID = "amzn1.ask.skill.xxxx-xxxx-xxxx-xxxx-xxxx"
-DOOR_NUMBER = 1
-# DO NOT CHANGE ANYTHING BELOW THIS LINE
+USERNAME = "yourlogin@email.com"
+PASSWORD = "YourPassword"
+ALEXA_ASK_ID = ""
 
 myq_userid                  = ""
 myq_security_token          = ""
@@ -61,14 +58,20 @@ def close():
 def status():
     response = check_door_state()
     state = response["AttributeValue"]
-    if state == "9":
+    if state == "1":
         return "open"
     elif state == "2":
         return "closed"
-    elif state == "8":
+    elif state == "3":
+        return "stopped"
+    elif state == "4":
         return "opening"
     elif state == "5":
         return "closing"
+    elif state == "8":
+        return "opening" # seen as documented as "moving"
+    elif state == "9":
+        return "open"
     else:
         return state + " is an unknown state for the door."
 
@@ -108,7 +111,7 @@ def change_door_state(command):
 
     body = {
         "AttributeName":"desireddoorstate",
-        "DeviceId": myq_device_id,
+        "DeviceId":myq_device_id,
         "ApplicationId":APP_ID,
         "AttributeValue":open_close_state,
         "SecurityToken":myq_security_token
@@ -120,15 +123,14 @@ def change_door_state(command):
 
 def get_device_id():
     global myq_device_id
-    
-    all_doors = []
-    devices = requests.get(device_list_uri(myq_security_token)).json()
 
+    devices = requests.get(device_list_uri(myq_security_token)).json()
     for dev in devices["Devices"]:
         if dev["MyQDeviceTypeName"] in ["VGDO", "GarageDoorOpener", "Garage Door Opener WGDO"]:
-            all_doors.append(str(dev["DeviceId"]))
-    myq_device_id = all_doors[DOOR_NUMBER - 1]
-            
+            myq_device_id = str(dev["DeviceId"])
+            # We only want the first one
+            break
+
 def check_door_state_uri(command):
     uri = "https://" + HOST_URI + "/" + DEVICE_STATUS_ENDPOINT
     uri += "?appId=" + APP_ID
@@ -142,7 +144,7 @@ def check_door_state():
     uri = check_door_state_uri("doorstate")
     return requests.get(uri).json()
 
-    # Called when the session starts
+# Called when the session starts
 def onSessionStarted(requestId, session):
     print("onSessionStarted requestId=" + requestId + ", sessionId=" + session['sessionId'])
 

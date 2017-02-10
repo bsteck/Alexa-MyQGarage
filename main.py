@@ -15,6 +15,7 @@ DEVICE_STATUS_ENDPOINT = "Device/getDeviceAttribute"
 USERNAME = "yourlogin@email.com"
 PASSWORD = "YourPassword"
 ALEXA_ASK_ID = ""
+DOOR_NUMBER = 1
 
 myq_userid                  = ""
 myq_security_token          = ""
@@ -123,13 +124,14 @@ def change_door_state(command):
 
 def get_device_id():
     global myq_device_id
-
+    
+    all_doors = []
     devices = requests.get(device_list_uri(myq_security_token)).json()
+
     for dev in devices["Devices"]:
         if dev["MyQDeviceTypeName"] in ["VGDO", "GarageDoorOpener", "Garage Door Opener WGDO"]:
-            myq_device_id = str(dev["DeviceId"])
-            # We only want the first one
-            break
+            all_doors.append(str(dev["DeviceId"]))
+    myq_device_id = all_doors[DOOR_NUMBER - 1]
 
 def check_door_state_uri(command):
     uri = "https://" + HOST_URI + "/" + DEVICE_STATUS_ENDPOINT
